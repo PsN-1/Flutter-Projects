@@ -1,7 +1,7 @@
 import 'package:bitcoin_ticker/coin_data.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:bitcoin_ticker/custom_picker.dart';
+import 'package:bitcoin_ticker/price_text_field.dart';
 import 'package:flutter/material.dart';
-import 'dart:io' show Platform;
 import 'dart:math';
 
 class PriceScreen extends StatefulWidget {
@@ -15,55 +15,7 @@ class _PriceScreenState extends State<PriceScreen> {
   String currentETHPrice;
   String currentLTCPrice;
 
-  DropdownButton<String> androidDropdown() {
-    return DropdownButton<String>(
-      value: selectedCurrency,
-      items: createList(),
-      onChanged: (value) {
-        selectedCurrency = value;
-        getCoinsData(selectedCurrency);
-      },
-    );
-  }
-
-  CupertinoPicker iOSPicker() {
-    return CupertinoPicker(
-        itemExtent: 32,
-        onSelectedItemChanged: (selectedIndex) {
-          selectedCurrency = currenciesList[selectedIndex];
-          getCoinsData(selectedCurrency);
-        },
-        children: createPickerList());
-  }
-
-  List<DropdownMenuItem> createList() {
-    return currenciesList
-        .map((e) => DropdownMenuItem(child: Text(e), value: e))
-        .toList();
-  }
-
-  List<Text> createPickerList() {
-    return currenciesList.map((e) => Text(e)).toList();
-  }
-
-  Widget getPicker() {
-    if (Platform.isIOS) {
-      return iOSPicker();
-    }
-    return androidDropdown();
-  }
-
-  void getCoinData(String currency) async {
-    CoinData coinData = CoinData();
-
-    var value = await coinData.getCoinData(currency, 'USD');
-    print(value['rate'].toString());
-    setState(() {
-      currentBTCPrice = value['rate'].toStringAsFixed(2);
-    });
-
-    print(currentBTCPrice);
-  }
+  CustomPicker customPicker = CustomPicker();
 
   void getCoinsData(String currency) async {
     CoinData coinData = CoinData();
@@ -81,7 +33,7 @@ class _PriceScreenState extends State<PriceScreen> {
   void initState() {
     super.initState();
 
-    getCoinData('USD');
+    getCoinsData('USD');
   }
 
   @override
@@ -94,76 +46,32 @@ class _PriceScreenState extends State<PriceScreen> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Padding(
-            padding: EdgeInsets.fromLTRB(18.0, 18.0, 18.0, 0),
-            child: Card(
-              color: Colors.lightBlueAccent,
-              elevation: 5.0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
-                child: Text(
-                  '1 BTC = $currentBTCPrice $selectedCurrency',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.fromLTRB(18.0, 18.0, 18.0, 0),
-            child: Card(
-              color: Colors.lightBlueAccent,
-              elevation: 5.0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
-                child: Text(
-                  '1 ETH = $currentETHPrice $selectedCurrency',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.fromLTRB(18.0, 18.0, 18.0, 0),
-            child: Card(
-              color: Colors.lightBlueAccent,
-              elevation: 5.0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
-                child: Text(
-                  '1 LTC = $currentLTCPrice $selectedCurrency',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-          ),
+          PriceTextField(text: '1 BTC = $currentBTCPrice $selectedCurrency'),
+          PriceTextField(text: '1 ETH = $currentETHPrice $selectedCurrency'),
+          PriceTextField(text: '1 LTC = $currentLTCPrice $selectedCurrency'),
           Spacer(),
           Container(
-              height: 150.0,
-              alignment: Alignment.center,
-              padding: EdgeInsets.only(bottom: 30.0),
-              color: Colors.lightBlue,
-              child: getPicker()),
+            height: 150.0,
+            alignment: Alignment.center,
+            padding: EdgeInsets.only(bottom: 30.0),
+            color: Colors.lightBlue,
+            child: customPicker.getPicker(),
+          ),
+          Container(
+            height: 100,
+            child: ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  selectedCurrency = customPicker.selectedCurrency;
+                });
+                getCoinsData(selectedCurrency);
+              },
+              child: Text(
+                'Get Price',
+                style: TextStyle(fontSize: 23),
+              ),
+            ),
+          ),
         ],
       ),
     );

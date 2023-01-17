@@ -32,7 +32,7 @@ const List<String> cryptoList = [
 
 const url = 'rest.coinapi.io';
 const endpoint = '/v1/exchangerate';
-const apiKey = 'EE8AD297-3FF3-4DEA-A56F-A65E7CEBDC4F';
+const apiKey = '62125021-BE18-44AF-BB38-EB0C9E3465E8';
 
 class CoinData {
   Future<dynamic> getCoinData(String currency, String coin) async {
@@ -40,6 +40,7 @@ class CoinData {
     var headers = {
       'X-CoinAPI-Key': apiKey,
     };
+
     NetworkHelper networkHelper = NetworkHelper(url: uri, headers: headers);
 
     var coinData = await networkHelper.getData();
